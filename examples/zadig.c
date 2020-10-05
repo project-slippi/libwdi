@@ -194,6 +194,7 @@ int display_devices(void)
 	HDC hdc;
 	SIZE size;
 	LONG max_width = 0;
+	char str_tmp[5];
 
 	hdc = GetDC(hDeviceList);
 	_IGNORE(ComboBox_ResetContent(hDeviceList));
@@ -204,6 +205,13 @@ int display_devices(void)
 			dprintf("error: device description is empty");
 			break;
 		}
+
+		// Only show GC adapters
+		static_sprintf(str_tmp, "%04X", dev->vid);
+		if (safe_strcmp("057E", str_tmp) != 0) {
+			continue;
+		}
+			
 		if (!GetTextExtentPointU(hdc, dev->desc, &size)) {
 			dprintf("error: could not compute dropdown size of '%s' - %s", dev->desc, WindowsErrorString());
 			continue;
@@ -983,12 +991,10 @@ void init_dialog(HWND hDlg)
 	parse_ini();
 	set_loglevel(log_level+IDM_LOGLEVEL_DEBUG);
 	set_default_driver();
+	toggle_driverless(FALSE);
 
 	if (!advanced_mode) {
 		toggle_advanced();	// We start in advanced mode
-	}
-	if (cl_options.list_all) {
-		toggle_driverless(FALSE);
 	}
 	if (cl_options.list_hubs) {
 		toggle_hubs(FALSE);
@@ -1023,7 +1029,7 @@ BOOL parse_ini(void) {
 	// Set the various boolean options
 	profile_get_boolean(profile, "general", "advanced_mode", NULL, FALSE, &advanced_mode);
 	profile_get_boolean(profile, "general", "exit_on_success", NULL, FALSE, &exit_on_success);
-	profile_get_boolean(profile, "device", "list_all", NULL, FALSE, &cl_options.list_all);
+	profile_get_boolean(profile, "device", "list_all", NULL, TRUE, &cl_options.list_all);
 	profile_get_boolean(profile, "device", "include_hubs", NULL, FALSE, &cl_options.list_hubs);
 	profile_get_boolean(profile, "driver", "extract_only", NULL, FALSE, &extract_only);
 	profile_get_boolean(profile, "device", "trim_whitespaces", NULL, FALSE, &cl_options.trim_whitespaces);
