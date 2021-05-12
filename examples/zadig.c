@@ -194,7 +194,8 @@ int display_devices(void)
 	HDC hdc;
 	SIZE size;
 	LONG max_width = 0;
-	char str_tmp[5];
+	char vid_tmp[5];
+	char pid_tmp[5];
 
 	hdc = GetDC(hDeviceList);
 	_IGNORE(ComboBox_ResetContent(hDeviceList));
@@ -207,8 +208,9 @@ int display_devices(void)
 		}
 
 		// Only show GC adapters
-		static_sprintf(str_tmp, "%04X", dev->vid);
-		if (safe_strcmp("057E", str_tmp) != 0) {
+        static_sprintf(vid_tmp, "%04X", dev->vid);
+        static_sprintf(pid_tmp, "%04X", dev->pid);
+        if (safe_strcmp("057E", vid_tmp) != 0 && safe_strcmp("0337", pid_tmp) != 0) {
 			continue;
 		}
 			
